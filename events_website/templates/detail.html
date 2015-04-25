@@ -1,0 +1,11 @@
+{% if result %}
+    <h1>{{result.name.value}}</h1>
+    {{result.description.value}}<br>
+    <img src={{result.image.value}} height="200" width="200"><br>
+    startDate:{{result.startDate.value}}<br>
+    endDate:{{result.endDate.value}}<br>
+    address:{{result.locationName.value}}, {{result.streetAddress.value}},
+    {{result.addressLocality.value}}, {{result.addressRegion.value}}, {{result.postalCode.value}}
+{% else %}
+    <p>No answers matched your search criteria.</p>
+{% endif %}

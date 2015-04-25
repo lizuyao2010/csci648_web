@@ -1,0 +1,14 @@
+
+{% if results %}
+    <p>Display {{ results|length }} event{{ results|pluralize }}.</p>
+    <ul>
+        {% for result in results %}
+        <li><a href={{result.s.value}}>{{ result.name.value }}</a><br>
+            {{ result.description.value }}<br>
+            <img src={{result.image.value}} alt="event image" height="200" width="200">
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No events matched your search criteria.</p>
+{% endif %}

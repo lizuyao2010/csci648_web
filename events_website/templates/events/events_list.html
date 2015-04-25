@@ -1,0 +1,8 @@
+<h1>Events</h1>
+<ul>
+{% for event in object_list %}
+    <li>{{ event.name }} - {{ event.description }}</li>
+{% empty %}
+    <li>No articles yet.</li>
+{% endfor %}
+</ul>
