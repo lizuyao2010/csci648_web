@@ -1,14 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<script>
 
+function addMarker(map,lat,lng,info)
+{  
+  var marker=new google.maps.Marker({
+  position:new google.maps.LatLng(lat,lng),
+  });
+  marker.setMap(map);
+      
+  var infowindow = new google.maps.InfoWindow({
+    content:info
+  });
+  google.maps.event.addListener(marker, 'click', function() {
+    infowindow.open(map,marker);
+  });
+}
+
+</script>
+
+</head>
+
+<body>
+    <p>Search events</p>
+    <form action="/search/" method="get">
+    <div class="form-actions">
+        <input type="text" name="event_name">
+        <button type="submit" class="btn btn-primary">Go</button>
+    </div>
+    </form>
+    <ul>
+        <li><a href="/search/?within=7">This Week</a></li>
+        <li><a href="/search/?within=1">Tomorrow</a></li>
+    </ul>
+    <form id="search" action="/search/">
+        <input type="checkbox" name="category" value="Music"> Music<br>
+        <input type="checkbox" name="category" value="Nightlife"> NightLife<br>
+        <input type="submit" value="Filter">
+    </form>
 {% if results %}
-    <p>Display {{ results|length }} event{{ results|pluralize }}.</p>
+    <p> {{ results|length }} event{{ results|pluralize }} in total.</p>
+    <div id="googleMap" style="width:800px;height:600px;"></div>
+    <script type="text/javascript">
+        //initial map
+        var mapProp = {
+            //We need to set a suitable centre
+            center:new google.maps.LatLng(34.0500,-118.2500),
+            zoom:10,
+            mapTypeId:google.maps.MapTypeId.ROADMAP
+          };
+        var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+    </script>
     <ul>
         {% for result in results %}
-        <li><a href={{result.s.value}}>{{ result.name.value }}</a><br>
+        <li>
+            <a href="{{result.s.value}}">{{ result.name.value }}</a><br>
+            {% if result.attendee.value %}
+            <a href="{{ result.attendee.value}}">Attendee</a><br>
+            {% endif %}
+            {{ result.startDate.value}}-{{result.endDate.value}} <br>
+            {{ result.locationName.value}}, {{result.addressLocality.value}}, {{result.addressRegion.value}}<br>
             {{ result.description.value }}<br>
             <img src={{result.image.value}} alt="event image" height="200" width="200">
+            {% if result.lat.value %}
+            <script type="text/javascript">google.maps.event.addDomListener(window, 'load', addMarker(map,{{result.lat.value}},{{result.long.value}},"{{result.name.value}}<br>{{result.description.value}}"));</script>
+            {% endif %}
         </li>
         {% endfor %}
     </ul>
 {% else %}
     <p>No events matched your search criteria.</p>
 {% endif %}
+</body>
+
+</html>

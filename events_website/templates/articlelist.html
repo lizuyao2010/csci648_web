@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta charset="utf-8">
+		<title>Event List -- Event Master</title>
+		<meta name="generator" content="Bootply" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="shortcut icon" type="image/x-icon" href="/static/img/issac.ico"/>
+		<!--[if lt IE 9]>
+			<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<link href="/static/css/styles2.css" rel="stylesheet">
+        <link rel="stylesheet" href="/static/css/creative.css" type="text/css">
+
+        <link href="/static/assets/css/main.css" rel="stylesheet">
+        <link href="/static/assets/css/colors/color-74c9be.css" rel="stylesheet">    
+        <link href="/static/assets/css/animations.css" rel="stylesheet">
+        <link href="/static/assets/css/font-awesome.min.css" rel="stylesheet">
+        <style type="text/css">
+          button.glyphicon.glyphicon-search {
+            height: 32px !important;
+            width: 34px !important;
+            border-style: none !important;
+            margin-top: -2px !important;
+          }
+        </style>
+    <script src="http://maps.googleapis.com/maps/api/js"></script>
+    <script>
+      function addMarker(map,lat,lng,info)
+      {  
+        var marker=new google.maps.Marker({
+        position:new google.maps.LatLng(lat,lng),
+        });
+        marker.setMap(map);
+            
+        var infowindow = new google.maps.InfoWindow({
+          content:info
+        });
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.open(map,marker);
+        });
+      }
+
+      </script>
+	</head>
+	<body>
+        <nav id="mainNav" class="navbar navbar-default navbar-fixed-top " style="background-color:rgb(47,120,204)">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="index.html">Events Master</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <div class="input-group" style="width:500px;float:left;padding-top:10px"> 
+                    <div class="input-group-btn" >
+                    </div>
+                    <form action="/search/" method="get" style="display:inherit">
+                    <input type="text" class="form-control" placeholder="Search for events" name='event_name'>
+                    <span class="input-group-addon"; style="padding:0px;margin:0px"><button class="glyphicon glyphicon-search" ></button> </span>
+                    </form>
+                </div>
+                
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+<div class="wrapper" >
+    <div class="box" style="padding-top:50px;background-image:url(/static/img/paris.jpg);">
+        <div class="row">
+            <!-- sidebar -->
+            <div class="column col-sm-3" id="sidebar">
+                <ul class="nav" style="float:right;padding-right:40px;padding-top:40px;font-size:20px;text-align:center">
+                    
+                    <li style="padding-left:12px;"><h1><a href="/search/" style="color:black">Los Angeles</a></h1>
+                    </li>
+                    <li><a href="/search/?within=7">This Week</a>
+                    </li>
+                    <li><a href="/search/?within=1">Tomorrow</a>
+                    </li>
+                    <li><a href="/search/?category=Film">Film</a>
+                    </li>
+                    <li><a href="/search/?category=Music">Music</a>
+                    </li>
+                    <li><a href="/search/?category=Food">Food</a>
+                    </li>
+                    <li><a href="/search/?category=Visual Arts">Visual Arts</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /sidebar -->
+          
+            <!-- main -->
+            <div class="column col-sm-9" id="main">
+                <div class="padding">
+                    <div class="full col-sm-9">
+                        {% if results %}
+                        <div class="col-sm-12" id="stories" style="margin-top:-50px">   
+                          <div class="page-header text-muted">
+                          Display {{ results|length }} event{{ results|pluralize }}.
+                          </div> 
+                        </div>
+                        <div id="googleMap" style="width:800px;height:400px;margin:0 0 20px 15px"></div>
+
+                         <div class="col-sm-12"><hr style="max-width:1260px;width:810px"></div>
+                        <script type="text/javascript">
+                            //initial map
+                            var mapProp = {
+                                //We need to set a suitable centre
+                                center:new google.maps.LatLng(34.0500,-118.2500),
+                                zoom:10,
+                                mapTypeId:google.maps.MapTypeId.ROADMAP
+                              };
+                            var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+                        </script>
+                        {% for result in results %}
+                        <!--/top story-->
+                        <div class="row">    
+                          <div class="col-sm-10">
+                              <h3><a name="{{result.s.value}}" href="{{result.s.value}}" style="color:black;">{{result.name.value}}</a></h3>
+                            <h4><span class="label label-default">{{result.category.value}}</span></h4>
+                            {% if result.subEvents %}
+                            Similar Events: 
+                            {% for subEvent in result.subEvents %}
+                                <a href="{{ subEvent.uri }}">{{subEvent.name}}</a>,
+                            {% endfor %}
+                            <br>
+                            {% endif %}
+                            {% if result.attendees %} 
+                                Performers:
+                                {% for attendee in result.attendees %}
+                                  <a href="{{ attendee.uri}}">{{attendee.name}}</a>,
+                                {% endfor %}
+                            <br>
+                            {% endif %}
+                            
+                            <h4>
+                            <small class="text-muted">{{result.startDate.value}} - {{result.endDate.value}}<br> <a href="#" class="text-muted">{{ result.locationName.value}}, {{result.addressLocality.value}}, {{result.addressRegion.value}}</a></small>
+                            </h4>
+                            {{result.description.value}}
+                          </div>
+                          {% if result.lat.value %}
+                          <script type="text/javascript">google.maps.event.addDomListener(window, 'load', addMarker(map,{{result.lat.value}},{{result.long.value}},"<img src={{result.image.value}} style=\"width:200px;height:200px\"><br><b>Name</b>:<a href=\"#{{result.s.value}}\">{{result.name.value}}</a><br><b>Description</b>:{{result.description.value}}"));</script>
+                          {% endif %}
+                          <div class="col-sm-2">
+                            <a href="{{result.image.value}}" class="pull-right"><img src="{{result.image.value}}" class='photo'></a>
+                          </div> 
+                        </div>
+                        <div class="row divider">    
+                           <div class="col-sm-12"><hr style="max-width:1260px;width:824px"></div>
+                        </div>
+                        {% endfor %}
+
+                        {% else %}
+                        <p>No events matched your search criteria.</p>
+                        {% endif %}
+                        <script type="text/javascript">
+                              function nextPage()
+                              {
+                                var browser_url=window.location.href;
+                                var new_url="";
+                                if (browser_url.indexOf("?offset=") == -1)
+                                {
+                                    new_url=browser_url+"?offset=20"
+                                }
+                                else
+                                {
+                                  var prefix=browser_url.toString().split("offset=")[0];
+                                  var offset=parseInt(browser_url.split("offset=")[1])+20;
+                                  new_url = prefix+"offset="+offset.toString();
+                                } 
+                                window.location.assign(new_url);
+                                // $( "#next_button" ).attr( "href", prefix+(offset).toString());
+                              }
+                        </script>
+                        
+                        <div class="col-sm-12" id="rec">
+                          <div class="page-header text-muted divider">
+                            <a id="next_button" onclick="nextPage()">next</a>
+                          </div>
+                        </div>
+
+                        <div class="col-sm-12" id="rec">
+                          <div class="page-header text-muted divider">
+                            Recommendations
+                          </div>
+                        </div>
+                      
+                        <div class="row">    
+                          <div class="col-sm-4 text-center">
+                            <h4>NEW YORK</h4>
+                            <a href="#"><img src="http://www.ucityguides.com/images/romantic-venice.jpg" class="img-respsonsive img-circle"></a>
+                          </div>
+                          <div class="col-sm-4 text-center">
+                            <h4>CHICAGO</h4>
+                            <a href="#"><img src="http://www.ucityguides.com/images/romantic-rome.jpg" class="img-respsonsive img-circle"></a>
+                          </div>
+                          <div class="col-sm-4 text-center">
+                            <h4>SAN FRANCISCO</h4>
+                            <a href="#"><img src="http://www.ucityguides.com/images/romantic-vienna.jpg" class="img-respsonsive img-circle"></a>
+                          </div>
+                        </div>
+                      
+    
+                        <div class="row divider">    
+                           <div class="col-sm-12"><hr style="max-width:1260px;width:824px"></div>
+                        </div>
+                    </div><!-- /col-9 -->
+                </div><!-- /padding -->
+            </div>
+            <!-- /main -->
+        </div>
+    </div>
+</div>
+        
+        
+    <section id="footer" style='height:120px'>
+        <div class="col-lg-4 col-lg-offset-4 text-center" style="margin-top:-70px">
+                        <span style="color: #acadaf; position: absolute; left: 18px; top: 0; font-size: 14pt; text-align: left; font-family: FontAwesome;color:rgb(47,120,204)"></span>
+                    <input type="email" style="text-indent: 26px; border-top:0; border-right: 0; border-bottom: 1px solid rgb(47,120,204); border-left:0; color: #82ACC4; width: 100%; font-family: 'adobe-garamond-pro', Garamond, 'Hoefler Text', 'Times New Roman', serif; font-weight: 300; font-size: 14pt; font-style: italic; text-align:left;color:rgb(47,120,204)" value="" name="EMAIL" class="email" id="mce-EMAIL" required="">
+                    <label style="display: block; width: 100%; font-family: 'museo-sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12pt; color:rgb(47,120,204);font-weight: 300;;font-style:normal" >Join Our Mailing List</label>
+                </div>
+        <div class="container">
+                
+                <hr style="width:1100PX; max-width:2000px;border-width: 1px;">
+                
+                <div class="col-lg-4 col-lg-offset-1" style="width:950px;font-weight:300;">
+                    <span style="color:rgb(100,200,255);float:left;">© 2015  <a href="index.html">Events Master</a></span>
+                    <span>
+                        <a href="#" style="margin-left:200px;font-size:15pt">About&nbsp;Us</a>
+                        <a href="contact.html" style="margin-left:50px;font-size:15pt">Contact&nbsp;Us</a>
+                    </span>
+                    <p style='float:right'>
+                        <a href='#'><i class="fa fa-instagram"></i></a>
+                        <a href='#'><i class="fa fa-facebook-square"></i></a>
+                        <a href='#'><i class="fa fa-twitter-square"></i></a>
+                        <a href="#"><i class="fa fa-github-square"></i></a>
+                        <a href="#"><i class="fa fa-google-plus-square"></i></a>
+                    </p>
+                </div>
+        </div>
+    </section>
+    
+    <!--modal!-->
+    <div class="modal fade bs-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+        <br>
+        <div class="bs-example bs-example-tabs">
+            <ul id="myTab" class="nav nav-tabs">
+              <li class="active"><a href="#signin" data-toggle="tab">Sign In</a></li>
+              <li class=""><a href="#signup" data-toggle="tab">Register</a></li>
+            </ul>
+        </div>
+      <div class="modal-body">
+        <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade active in" id="signin">
+            <form class="form-horizontal">
+            <fieldset>
+            <!-- Sign In Form -->
+            <!-- Text input-->
+            <div class="form-group">
+                <label for="keyword" class="col-sm-3 control-label">Username:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="keywords" id="keywords" placeholder="Enter Username">
+                </div>
+            </div>
+
+            <!-- Password input-->
+            <div class="form-group">
+                <label for="keyword" class="col-sm-3 control-label">Password:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="keywords" id="keywords" placeholder="Enter password">
+                </div>
+            </div>
+
+            <!-- Multiple Checkboxes (inline) -->
+            <div class="form-group">
+                <label class="col-sm-3 control-label"></label>
+                <div class="col-sm-8">
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="free" value="true"> <b>Remember me</b></label>
+                    </div>
+                </div>
+            </div>
+            <!-- Button -->
+            <div class="form-group">
+              <label class="col-sm-3 control-label"></label>
+              <div class="col-sm-8">
+                <button id="signin" name="signin" class="btn login" style="margin-top:7px">Sign In</button>
+              </div>
+            </div>
+            </fieldset>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="signup">
+            <form class="form-horizontal">
+            <fieldset>
+            <!-- Sign Up Form -->
+            <!-- Text input-->
+            <div class="form-group">
+                <label for="keyword" class="col-sm-3 control-label">Email:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="keywords" id="keywords" placeholder="Enter Email">
+                </div>
+            </div>
+            <!-- Password input-->
+            <div class="form-group">
+                <label for="keyword" class="col-sm-3 control-label">Password:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="keywords" id="keywords" placeholder="Enter password">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="keyword" class="col-sm-3 control-label">Re-enter:</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="keywords" id="keywords" placeholder="Re-enter password">
+                </div>
+            </div>
+            
+            <!-- Button -->
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="confirmsignup"></label>
+              <div class="col-sm-8">
+                <button id="confirmsignup" name="confirmsignup" class="btn login">Sign Up</button>
+              </div>
+            </div>
+            </fieldset>
+            </form>
+      </div>
+    </div>
+      </div>
+      <div class="modal-footer" align="center">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+    <!--modal!-->
+	<!-- script references -->
+        <script src="/static/js/jquery.js"></script>
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+        <!-- Plugin JavaScript -->
+        <script src="/static/js/jquery.easing.min.js"></script>
+        <script src="/static/js/jquery.fittext.js"></script>
+        <script src="/static/js/wow.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="/static/js/creative.js"></script>
+	</body>
+</html>

@@ -8,5 +8,31 @@
         <input type="text" name="event_name">
         <input type="submit" value="Go">
     </form>
+    <ul>
+        <li><a href="/search/?within=7">This Week</a></li>
+        <li><a href="/search/?within=1">Tomorrow</a></li>
+    </ul>
+    <form id="search" action="/search/">
+        <input type="checkbox" name="category" value="Music"> Music<br>
+        <input type="checkbox" name="category" value="Nightlife"> NightLife<br>
+        <input type="submit" value="Filter">
+    </form>
+    <a href="/map/">map view</a>
+    {% if results %}
+    <p>Display {{ results|length }} event{{ results|pluralize }}.</p>
+    <ul>
+        {% for result in results %}
+        <li><a href={{result.link}}>{{ result.name.value }}</a><br>
+            {{ result.description.value }}<br>
+            <img src={{result.image.value}} alt="event image" height="200" width="200">
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>No events matched your search criteria.</p>
+    {% endif %}
+<script>
+</script>
 </body>
 </html>
+

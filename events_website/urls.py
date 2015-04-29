@@ -9,10 +9,11 @@ urlpatterns = [
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^list/$',views.list),
-    url(r'^detail/$',views.detail),
-    url(r'^search_form/$',views.search_form),
+    # url(r'^list/$',views.list),
+    # url(r'^detail/$',views.detail),
+    url(r'^$',views.search),
     url(r'^search/$',views.search),
     # url(r'^$', EventsListView.as_view(model=Post), name='events-list'),
     url(r'^events/(?P<event_id>[a-z\d-]+)/$', views.event_detail),
+    url(r'^map/$',views.map),
 ]

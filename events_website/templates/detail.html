@@ -1,11 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+
+</head>
+
+<body>
 {% if result %}
     <h1>{{result.name.value}}</h1>
+    <b>category</b>:{{result.category.value}}<br>
     {{result.description.value}}<br>
     <img src={{result.image.value}} height="200" width="200"><br>
     startDate:{{result.startDate.value}}<br>
     endDate:{{result.endDate.value}}<br>
     address:{{result.locationName.value}}, {{result.streetAddress.value}},
-    {{result.addressLocality.value}}, {{result.addressRegion.value}}, {{result.postalCode.value}}
+    {{result.addressLocality.value}}, {{result.addressRegion.value}}, {{result.postalCode.value}}<br>
+    
+
+<div id="googleMap" style="width:800px;height:600px;"></div>
+<script>
+function initialize(lat,long) {
+  var mapProp = {
+  //We need to set a suitable centre
+    center:new google.maps.LatLng(34.0500,-118.2500),
+    zoom:10,
+    mapTypeId:google.maps.MapTypeId.ROADMAP
+  };
+  var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+  
+  //This part adds the marker
+  addMarker(map,lat,long,"{{result.name.value}}<br>category:{{result.category.value}}");
+  
+}
+
+function addMarker(map,lat,lng,info)
+{  
+  var marker=new google.maps.Marker({
+  position:new google.maps.LatLng(lat,lng),
+  });
+  marker.setMap(map);
+      
+  var infowindow = new google.maps.InfoWindow({
+    content:info
+  });
+  google.maps.event.addListener(marker, 'click', function() {
+    infowindow.open(map,marker);
+  });
+}
+
+google.maps.event.addDomListener(window, 'load', initialize({{result.lat.value}},{{result.long.value}}));
+
+</script>
 {% else %}
     <p>No answers matched your search criteria.</p>
 {% endif %}
+</body>
+
+</html>
+
+
+
